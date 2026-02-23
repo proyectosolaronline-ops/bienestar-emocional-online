@@ -545,5 +545,22 @@ function setTxt(id, val) {
     if (el && val) el.textContent = val;
 }
 </script>
+    <script>
+(function(){
+  var taps = 0, timer;
+  var EDITOR_URL = 'editor.html'; // cambia por tu URL real del editor
+
+  document.getElementById('site-logo').addEventListener('click', function(e){
+    e.preventDefault();
+    taps++;
+    clearTimeout(timer);
+    timer = setTimeout(function(){ taps = 0; }, 1500);
+    if(taps >= 5){
+      taps = 0;
+      window.open(EDITOR_URL, '_blank');
+    }
+  });
+})();
+</script>
 </body>
 </html>

@@ -125,7 +125,36 @@
 </div>
 
 <script>
-  var PROXY = 'https://proyectosolaronline-ops.github.io/bienestar-emocional-online/index.html'; // ← reemplaza con tu URL desplegada
+  // ── Precargar datos desde URL (viene de be-welcome) ──────────────
+  (function() {
+    var p = new URLSearchParams(window.location.search);
+    var map = {
+      nombre:   'Nombre',
+      telefono: 'Telefono',
+      correo:   'Correo'
+    };
+    Object.keys(map).forEach(function(key) {
+      var val = p.get(key);
+      var el  = document.getElementById(map[key]);
+      if (val && el) {
+        el.value = decodeURIComponent(val);
+        if (key === 'correo') {
+          el.readOnly = true;
+          el.style.background = '#FAF6FF';
+          el.style.color = '#6B48CC';
+          el.style.fontWeight = '500';
+          el.style.borderColor = '#EAE0FF';
+        }
+      }
+    });
+    // Guardar ID y sesión como variables globales para el envío
+    window.BE_PACIENTE_ID = p.get('id')    || '';
+    window.BE_SESION_ID   = p.get('sesion')|| '';
+    window.BE_MODAL       = p.get('modal') || 'Cita Personal';
+    window.BE_TIPO        = p.get('tipo')  || 'PAC';
+  })();
+
+  var PROXY = 'TU_URL_WEBAPP_AQUI'; // ← reemplaza con tu URL desplegada
 
   function selTipo(el, v) {
     document.querySelectorAll('.tipo-btn').forEach(function(b){ b.classList.remove('sel'); });
@@ -153,7 +182,10 @@
       telefono:     tel,
       correo:       document.getElementById('Correo').value.trim(),
       tipoTerapia:  serv,
-      tipoPaciente: tipo
+      tipoPaciente: tipo,
+      pacienteId:   window.BE_PACIENTE_ID || '',
+      sesion:       window.BE_SESION_ID   || '',
+      modal:        window.BE_MODAL       || 'Cita Personal'
     };
 
     fetch(PROXY, {

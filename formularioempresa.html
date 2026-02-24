@@ -243,7 +243,36 @@
 </div>
 
 <script>
-  var PROXY = 'https://proyectosolaronline-ops.github.io/bienestar-emocional-online/index.html'; // ← reemplaza con tu URL desplegada
+  // ── Precargar datos desde URL (viene de be-welcome) ──────────────
+  (function() {
+    var p = new URLSearchParams(window.location.search);
+    // nombre → Nombre_Contacto  |  telefono → Telefono  |  correo → Correo
+    var map = {
+      nombre:   'Nombre_Contacto',
+      telefono: 'Telefono',
+      correo:   'Correo'
+    };
+    Object.keys(map).forEach(function(key) {
+      var val = p.get(key);
+      var el  = document.getElementById(map[key]);
+      if (val && el) {
+        el.value = decodeURIComponent(val);
+        if (key === 'correo') {
+          el.readOnly = true;
+          el.style.background = '#F2FFFE';
+          el.style.color = '#1A6A5A';
+          el.style.fontWeight = '500';
+          el.style.borderColor = '#D8F0EC';
+        }
+      }
+    });
+    window.BE_PACIENTE_ID = p.get('id')    || '';
+    window.BE_SESION_ID   = p.get('sesion')|| '';
+    window.BE_MODAL       = p.get('modal') || 'Empresa';
+    window.BE_TIPO        = p.get('tipo')  || 'EMP';
+  })();
+
+  var PROXY = 'TU_URL_WEBAPP_AQUI'; // ← reemplaza con tu URL desplegada
   var srvActivo = '';
 
   function selServ(el, srv, key) {
@@ -319,3 +348,4 @@
 </script>
 </body>
 </html>
+

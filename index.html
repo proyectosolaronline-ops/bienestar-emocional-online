@@ -760,7 +760,7 @@ var BE = (function(){
             showErr('be-err1','');
             goScreen('be-s-load'); setLoadTxt('Guardando tu información…');
             var ctx=window.BE_CTX||{tipo:'PAC',modal:'Servicio'};
-            fetch(PROXY,{ method:'POST', headers:{'Content-Type':'application/json'},
+            fetch(PROXY,{ method:'POST', redirect:'follow', headers:{'Content-Type':'text/plain'},
                 body:JSON.stringify({ action:'registrarPacienteInicial', data:{ nombre:_nombre, telefono:_tel, correo:_correo, tipo:ctx.tipo, modal:ctx.modal, sesion:_sesion }})
             })
             .then(function(r){return r.json();})
@@ -780,7 +780,7 @@ var BE = (function(){
         elegirWA: function(){
             goScreen('be-s-load'); setLoadTxt('Notificando al equipo…');
             var ctx=window.BE_CTX||{modal:'Servicio',tipo:'PAC'};
-            fetch(PROXY,{ method:'POST', headers:{'Content-Type':'application/json'},
+            fetch(PROXY,{ method:'POST', redirect:'follow', headers:{'Content-Type':'text/plain'},
                 body:JSON.stringify({ action:'registrarInteres', data:{ pacienteId:_pacienteId, nombre:_nombre, telefono:_tel, correo:_correo, modal:ctx.modal, opcion:'Contacto WhatsApp', sesion:_sesion }})
             })
             .then(function(r){return r.json();}).catch(function(){})
@@ -790,23 +790,12 @@ var BE = (function(){
                 txt('be-conf-tel',_tel);
                 txt('be-conf-cwa',_correo);
 
-                // Mensaje que el CLIENTE puede enviar al admin
+                // Mensaje prellenado para el botón del cliente (hace clic él)
                 var msgCli='Hola, soy '+_nombre+' (ID: '+_pacienteId+').'
                     +' Me interesa información sobre *'+ctx.modal+'*.'
                     +' Mi teléfono es '+_tel+'.';
                 var waLink=document.getElementById('be-wa-link');
                 if(waLink) waLink.href='https://wa.me/'+WA_ADMIN+'?text='+encodeURIComponent(msgCli);
-
-                // Notificación automática al ADMIN — abre WA del admin
-                var msgAdmin='🔔 *Nuevo interés sin formulario*\n\n'
-                    +'🪪 *ID:* '       +_pacienteId+'\n'
-                    +'👤 *Nombre:* '   +_nombre    +'\n'
-                    +'📱 *Teléfono:* ' +_tel        +'\n'
-                    +(_correo ? '📧 *Correo:* ' +_correo+'\n' : '')
-                    +'🏷️ *Servicio:* ' +ctx.modal   +'\n'
-                    +'📌 *Opción:* Quiere ser contactado por WhatsApp\n'
-                    +'\n_Escríbele tú primero — está esperando._';
-                window.open('https://wa.me/'+WA_ADMIN+'?text='+encodeURIComponent(msgAdmin),'_blank');
 
                 goScreen('be-s-wa');
             });
@@ -814,7 +803,7 @@ var BE = (function(){
         elegirForm: function(){
             goScreen('be-s-load'); setLoadTxt('Preparando tu formulario…');
             var ctx=window.BE_CTX||{modal:'Servicio',tipo:'PAC',form:'FormularioCitaPersonal.html'};
-            fetch(PROXY,{ method:'POST', headers:{'Content-Type':'application/json'},
+            fetch(PROXY,{ method:'POST', redirect:'follow', headers:{'Content-Type':'text/plain'},
                 body:JSON.stringify({ action:'registrarInteres', data:{ pacienteId:_pacienteId, nombre:_nombre, telefono:_tel, correo:_correo, modal:ctx.modal, opcion:'Llenar Formulario', sesion:_sesion }})
             })
             .then(function(r){return r.json();}).catch(function(){})

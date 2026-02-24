@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>Días Disponibles — Bienestar Emocional</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rosa:#FF85C0;--morado:#A67FFF;--rosa-claro:#FFE5F0;--morado-claro:#E8D5FF;
+  --texto:#2D2A3D;--medio:#5A5570;--bg:#f7f4ff;--card:#fff;--border:#ede8ff;
+  --ok:#22c55e;--wa:#25D366;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);min-height:100vh;}
+
+/* ── BG decorativo ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 20%, rgba(255,133,192,.13) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 90% 80%, rgba(166,127,255,.15) 0%, transparent 70%);
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.85);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:.9rem 1.2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 16px rgba(166,127,255,.08);
+}
+.tb-back{
+  display:flex;align-items:center;gap:.5rem;
+  color:var(--morado);font-family:'Outfit',sans-serif;font-weight:700;font-size:.88rem;
+  text-decoration:none;background:var(--morado-claro);border:none;
+  padding:.45rem 1rem;border-radius:50px;cursor:pointer;transition:all .2s;
+}
+.tb-back:active{transform:scale(.96);}
+.tb-title{font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;color:var(--texto);}
+.tb-title span{color:var(--morado);}
+
+/* ── HERO ── */
+.hero{
+  position:relative;z-index:1;
+  text-align:center;padding:2.5rem 1.5rem 1.5rem;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:.4rem;
+  background:linear-gradient(135deg,var(--rosa),var(--morado));color:#fff;
+  font-family:'Outfit',sans-serif;font-size:.7rem;font-weight:700;
+  padding:.3rem .9rem;border-radius:50px;letter-spacing:.08em;text-transform:uppercase;
+  margin-bottom:1rem;
+  box-shadow:0 4px 16px rgba(166,127,255,.35);
+  animation:pulse-b 2.5s ease-in-out infinite;
+}
+@keyframes pulse-b{0%,100%{box-shadow:0 4px 16px rgba(166,127,255,.35);}50%{box-shadow:0 4px 24px rgba(166,127,255,.6);}}
+.hero h1{
+  font-family:'Outfit',sans-serif;font-size:clamp(1.6rem,5vw,2.4rem);font-weight:800;
+  color:var(--texto);line-height:1.2;margin-bottom:.6rem;
+}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(135deg,var(--rosa),var(--morado));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{font-size:.95rem;color:var(--medio);max-width:480px;margin:0 auto;line-height:1.7;}
+
+/* ── SLOTS ── */
+.slots-wrap{position:relative;z-index:1;padding:.5rem 1rem 3rem;max-width:680px;margin:0 auto;}
+
+/* Estado cargando / vacío */
+.estado{
+  text-align:center;padding:3rem 1.5rem;
+  color:var(--medio);font-size:.95rem;line-height:1.9;
+}
+.spinner{
+  width:40px;height:40px;border:4px solid var(--morado-claro);
+  border-top-color:var(--morado);border-radius:50%;
+  animation:sp .8s linear infinite;margin:0 auto 1rem;
+}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* Tarjetas de slot */
+.slot-card{
+  background:var(--card);border:1.5px solid var(--border);border-radius:18px;
+  padding:1.1rem 1.3rem;margin-bottom:.8rem;
+  display:flex;align-items:center;gap:1rem;
+  cursor:pointer;transition:all .25s ease;
+  box-shadow:0 2px 12px rgba(166,127,255,.07);
+  position:relative;overflow:hidden;
+}
+.slot-card::after{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,var(--rosa),var(--morado));
+  border-radius:4px 0 0 4px;
+}
+.slot-card:active{transform:scale(.985);box-shadow:0 4px 20px rgba(166,127,255,.2);}
+
+/* Fecha círculo */
+.slot-fecha-col{
+  flex-shrink:0;width:56px;height:56px;border-radius:14px;
+  background:linear-gradient(135deg,var(--rosa-claro),var(--morado-claro));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:1.5px solid rgba(166,127,255,.2);
+}
+.sf-num{font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:800;color:var(--morado);line-height:1;}
+.sf-mes{font-size:.6rem;font-weight:700;color:var(--medio);text-transform:uppercase;letter-spacing:.06em;margin-top:.1rem;}
+
+/* Info */
+.slot-info{flex:1;min-width:0;}
+.si-dia{font-family:'Outfit',sans-serif;font-size:.7rem;font-weight:700;color:var(--medio);text-transform:uppercase;letter-spacing:.08em;}
+.si-hora{font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;color:var(--texto);margin:.15rem 0;}
+.si-nota{font-size:.78rem;color:var(--medio);}
+
+/* Flecha */
+.slot-arrow{
+  flex-shrink:0;width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--rosa),var(--morado));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:1rem;
+  box-shadow:0 3px 10px rgba(166,127,255,.4);
+  transition:transform .2s;
+}
+.slot-card:active .slot-arrow{transform:translateX(3px);}
+
+/* ── OVERLAY SOLICITUD ── */
+.sol-overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(29,20,50,.88);backdrop-filter:blur(10px);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.sol-overlay.show{display:flex;align-items:flex-end;justify-content:center;}
+@media(min-width:600px){.sol-overlay.show{align-items:center;}}
+
+.sol-box{
+  background:var(--card);width:100%;max-width:500px;
+  border-radius:24px 24px 0 0;padding:0 0 env(safe-area-inset-bottom,0);
+  box-shadow:0 -8px 40px rgba(0,0,0,.25);
+  animation:slideUp .35s cubic-bezier(.16,1,.3,1);
+  position:relative;
+}
+@media(min-width:600px){.sol-box{border-radius:24px;margin:1rem;}}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+.sol-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0;}
+.sol-head{padding:1rem 1.3rem .4rem;display:flex;align-items:center;justify-content:space-between;}
+.sol-titulo{font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:800;color:var(--texto);}
+.sol-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--medio);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all .2s;}
+.sol-close:active{background:var(--rosa-claro);color:var(--rosa);}
+.sol-body{padding:.2rem 1.3rem 2rem;}
+
+.sol-resumen{
+  background:linear-gradient(135deg,var(--rosa-claro),var(--morado-claro));
+  border-radius:12px;padding:.75rem 1rem;margin-bottom:1.1rem;
+  display:flex;align-items:center;gap:.7rem;
+}
+.sol-resumen-ico{font-size:1.3rem;flex-shrink:0;}
+.sol-resumen-txt{font-family:'Outfit',sans-serif;font-size:.86rem;font-weight:700;color:var(--morado);line-height:1.4;}
+
+.fg{margin-bottom:.8rem;}
+.fg label{display:block;font-size:.65rem;font-weight:700;color:var(--medio);text-transform:uppercase;letter-spacing:.09em;margin-bottom:.3rem;}
+.fg input,.fg select,.fg textarea{
+  width:100%;padding:.72rem .95rem;
+  border:1.5px solid var(--border);border-radius:10px;
+  font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--texto);
+  background:#fafafa;outline:none;
+  transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{
+  border-color:var(--morado);box-shadow:0 0 0 3px rgba(166,127,255,.12);background:#fff;
+}
+.fg textarea{min-height:60px;resize:vertical;line-height:1.5;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;}
+
+.sol-btn{
+  width:100%;padding:.95rem;margin-top:.4rem;
+  background:linear-gradient(135deg,var(--rosa),var(--morado));color:#fff;
+  border:none;border-radius:50px;
+  font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;
+  cursor:pointer;transition:all .2s;
+  box-shadow:0 4px 18px rgba(166,127,255,.4);
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+}
+.sol-btn:disabled{opacity:.55;cursor:not-allowed;}
+.sol-btn:active:not(:disabled){transform:scale(.98);}
+.sol-spin{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:none;}
+
+/* Éxito */
+.sol-exito{text-align:center;padding:2rem 1rem;}
+.sol-exito-ico{font-size:3.5rem;margin-bottom:.75rem;}
+.sol-exito h4{font-family:'Outfit',sans-serif;font-size:1.25rem;color:var(--morado);margin-bottom:.5rem;}
+.sol-exito p{font-size:.88rem;color:var(--medio);line-height:1.7;}
+
+/* ── WA FLOTANTE ── */
+.wa-float{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:200;
+  width:58px;height:58px;background:var(--wa);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(37,211,102,.5);
+  text-decoration:none;animation:pulse-wa 2s infinite;
+}
+.wa-float svg{width:32px;height:32px;fill:#fff;}
+@keyframes pulse-wa{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.5);}50%{box-shadow:0 4px 30px rgba(37,211,102,.75);}}
+
+@media(min-width:600px){
+  .slots-wrap{padding:1rem 1.5rem 4rem;}
+  .slot-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(166,127,255,.18);}
+  .slot-card:hover .slot-arrow{transform:translateX(3px);}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="tb-back">← Volver</a>
+  <div class="tb-title">Agenda <span>Bienestar</span></div>
+  <div style="width:80px;"></div>
+</div>
+
+<div class="hero">
+  <div class="hero-badge">📅 Agenda tu cita</div>
+  <h1>Elige tu <em>día disponible</em></h1>
+  <p class="hero-sub">Selecciona la fecha que mejor te acomode. Te confirmaremos tu cita a la brevedad.</p>
+</div>
+
+<div class="slots-wrap">
+  <div id="slots-container">
+    <div class="estado"><div class="spinner"></div>Cargando disponibilidad...</div>
+  </div>
+</div>
+
+<!-- OVERLAY SOLICITUD -->
+<div id="solOverlay" class="sol-overlay" onclick="cerrarOverlay(event)">
+  <div class="sol-box" onclick="event.stopPropagation()">
+    <div class="sol-handle"></div>
+    <div class="sol-head">
+      <div class="sol-titulo">📅 Solicitar cita</div>
+      <button class="sol-close" onclick="cerrarOverlay(null)">✕</button>
+    </div>
+    <div class="sol-body">
+
+      <!-- Formulario -->
+      <div id="sol-form">
+        <div class="sol-resumen">
+          <div class="sol-resumen-ico">🗓️</div>
+          <div class="sol-resumen-txt" id="sol-resumen-txt">—</div>
+        </div>
+        <div class="fg"><label>Nombre completo *</label><input type="text" id="sol-nombre" placeholder="Tu nombre completo" autocomplete="name"></div>
+        <div class="g2">
+          <div class="fg"><label>Teléfono / WhatsApp *</label><input type="tel" id="sol-telefono" placeholder="4421234567" autocomplete="tel"></div>
+          <div class="fg"><label>Correo</label><input type="email" id="sol-correo" placeholder="correo@ejemplo.com" autocomplete="email"></div>
+        </div>
+        <div class="fg">
+          <label>Servicio de interés</label>
+          <select id="sol-servicio">
+            <option value="">— Seleccionar —</option>
+            <option>Empresas</option><option>Escuelas</option>
+            <option>Niños y Adolescentes</option><option>Adultos</option><option>Evaluaciones</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Motivo <span style="font-weight:400;font-size:.7rem;color:var(--medio);">(opcional)</span></label>
+          <textarea id="sol-motivo" placeholder="Cuéntanos brevemente..."></textarea>
+        </div>
+        <button class="sol-btn" id="sol-btn" onclick="enviarSolicitud()">
+          <span id="sol-btn-txt">Enviar solicitud</span>
+          <span class="sol-spin" id="sol-spin"></span>
+        </button>
+      </div>
+
+      <!-- Éxito -->
+      <div id="sol-exito" style="display:none;">
+        <div class="sol-exito">
+          <div class="sol-exito-ico">✅</div>
+          <h4>¡Solicitud enviada!</h4>
+          <p>Recibimos tu solicitud. Te contactaremos pronto para confirmar.<br><br>Revisa tu WhatsApp y correo.</p>
+          <button class="sol-btn" style="margin-top:1.5rem;" onclick="cerrarOverlay(null)">Cerrar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- WA flotante -->
+<a id="wa-link" href="https://wa.me/524425839311" class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg viewBox="0 0 32 32"><path d="M16 0C7.164 0 0 7.164 0 16c0 2.825.738 5.607 2.137 8.058L.069 31.488l7.695-2.01A15.87 15.87 0 0016 32c8.836 0 16-7.164 16-16S24.836 0 16 0zm8.28 22.663c-.36.981-2.106 1.8-2.898 1.92-.77.12-1.588.173-2.564-.165a23.726 23.726 0 01-2.322-.857c-4.08-1.77-6.736-5.93-6.944-6.204-.208-.273-1.705-2.292-1.705-4.374 0-2.082 1.073-3.104 1.456-3.527.384-.423.837-.53 1.116-.53.28 0 .558.003.803.015.26.013.606-.098.95.723.344.82 1.174 2.903 1.278 3.115.104.212.173.46.034.733-.139.273-.208.442-.415.681-.207.24-.435.535-.621.72-.207.205-.422.427-.182.838.24.41 1.07 1.782 2.298 2.888 1.58 1.423 2.912 1.868 3.327 2.08.415.212.657.177.9-.107.243-.284.953-1.13 1.208-1.518.254-.39.508-.325.86-.195.35.13 2.23 1.062 2.612 1.255.383.192.638.287.734.445.096.158.096.915-.264 1.896z"/></svg>
+</a>
+
+<script>
+var PROXY = 'https://script.google.com/macros/s/AKfycbw33rJe4JWLUnSHYuRuf4x_FW90YKMA-i2PEHXCoJwqYmUcih90NVV9JpUe_i0jrQli/exec';
+var SITE  = 'https://bienestaremocionalwepapp-code.github.io/Bienestar-Emocional-Online/';
+
+var DIAS  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+var MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+var slotActual = null;
+var contactoAdmin = {};
+
+// ── Cargar contacto para WA admin ──
+fetch(PROXY + '?tab=Contacto', {redirect:'follow'})
+  .then(function(r){return r.text();})
+  .then(function(t){
+    var j = JSON.parse(t);
+    if (j.ok && j.data) {
+      contactoAdmin = j.data;
+      if (j.data.telefono) {
+        var tel = j.data.telefono.replace(/\D/g,'');
+        if (tel.length===10) tel = '52'+tel;
+        document.getElementById('wa-link').href = 'https://wa.me/'+tel;
+      }
+    }
+  }).catch(function(){});
+
+// ── Cargar slots ──
+function loadSlots() {
+  var container = document.getElementById('slots-container');
+  fetch(PROXY + '?tab=Disponibilidad&publico=true', {redirect:'follow'})
+    .then(function(r){return r.text();})
+    .then(function(t){
+      var j = JSON.parse(t);
+      if (!j.ok) throw new Error(j.error||'Error');
+      var hoy = fmtDate(new Date());
+      var slots = (j.slots||[]).filter(function(s){
+        return String(s.activo).toLowerCase()==='true' && s.fecha >= hoy;
+      });
+      slots.sort(function(a,b){
+        return (a.fecha+(a.hora_inicio||'')).localeCompare(b.fecha+(b.hora_inicio||''));
+      });
+      renderSlots(slots, container);
+    })
+    .catch(function(e){
+      console.error(e);
+      container.innerHTML = '<div class="estado">😔 No se pudo cargar la disponibilidad.<br><small>Intenta más tarde o contáctanos por WhatsApp.</small></div>';
+    });
+}
+
+function renderSlots(slots, container) {
+  if (!slots.length) {
+    container.innerHTML = '<div class="estado">🗓️ No hay fechas disponibles en este momento.<br><small>Pronto publicaremos nuevas fechas.<br>¡Contáctanos directo por WhatsApp!</small></div>';
+    return;
+  }
+  var html = '';
+  slots.forEach(function(s) {
+    var d   = new Date(s.fecha + 'T12:00:00');
+    var dia = DIAS[d.getDay()];
+    var num = d.getDate();
+    var mes = MESES[d.getMonth()];
+    var mesC = MESES_C[d.getMonth()];
+    var dStr = JSON.stringify(s).replace(/"/g,'&quot;');
+    html +=
+      '<div class="slot-card" onclick="abrirSolicitud(this)" data-slot="'+dStr+'" data-dia="'+dia+'" data-num="'+num+'" data-mes="'+mes+'">'
+      + '<div class="slot-fecha-col">'
+      +   '<div class="sf-num">'+num+'</div>'
+      +   '<div class="sf-mes">'+mesC+'</div>'
+      + '</div>'
+      + '<div class="slot-info">'
+      +   '<div class="si-dia">'+dia+'</div>'
+      +   '<div class="si-hora">🕐 '+(s.hora_inicio||'')+(s.hora_fin?' – '+s.hora_fin:'')+'</div>'
+      +   (s.nota?'<div class="si-nota">'+escHtml(s.nota)+'</div>':'')
+      + '</div>'
+      + '<div class="slot-arrow">→</div>'
+      + '</div>';
+  });
+  container.innerHTML = html;
+}
+
+// ── Solicitud ──
+function abrirSolicitud(el) {
+  var s    = JSON.parse(el.getAttribute('data-slot').replace(/&quot;/g,'"'));
+  var dia  = el.getAttribute('data-dia');
+  var num  = el.getAttribute('data-num');
+  var mes  = el.getAttribute('data-mes');
+  slotActual = s;
+
+  document.getElementById('sol-resumen-txt').textContent =
+    dia+' '+num+' de '+mes+'  ·  '+(s.hora_inicio||'')+(s.hora_fin?' – '+s.hora_fin:'')+(s.nota?'  ·  '+s.nota:'');
+
+  ['sol-nombre','sol-telefono','sol-correo','sol-motivo'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('sol-servicio').value='';
+  document.getElementById('sol-form').style.display='';
+  document.getElementById('sol-exito').style.display='none';
+  document.getElementById('sol-btn-txt').textContent='Enviar solicitud';
+  document.getElementById('sol-spin').style.display='none';
+  document.getElementById('sol-btn').disabled=false;
+
+  document.getElementById('solOverlay').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function cerrarOverlay(e) {
+  if (e && e.target !== document.getElementById('solOverlay')) return;
+  document.getElementById('solOverlay').classList.remove('show');
+  document.body.style.overflow='';
+  slotActual = null;
+}
+
+function enviarSolicitud() {
+  var nombre   = document.getElementById('sol-nombre').value.trim();
+  var telefono = document.getElementById('sol-telefono').value.trim();
+  if (!nombre)   { alert('Por favor ingresa tu nombre.'); return; }
+  if (!telefono) { alert('Por favor ingresa tu teléfono.'); return; }
+
+  var btn = document.getElementById('sol-btn');
+  btn.disabled = true;
+  document.getElementById('sol-btn-txt').textContent = 'Enviando...';
+  document.getElementById('sol-spin').style.display = 'inline-block';
+
+  var slot  = slotActual || {};
+  var datos = {
+    nombre:nombre, telefono:telefono,
+    correo:   document.getElementById('sol-correo').value.trim(),
+    servicio: document.getElementById('sol-servicio').value,
+    motivo:   document.getElementById('sol-motivo').value.trim(),
+    fecha:    slot.fecha||'', hora_inicio:slot.hora_inicio||'',
+    hora_fin: slot.hora_fin||'', nota:slot.nota||''
+  };
+
+  apiPost('createCita',{data:{
+    id:'',fecha:datos.fecha,hora:datos.hora_inicio,
+    nombre:datos.nombre,telefono:datos.telefono,
+    correo:datos.correo,servicio:datos.servicio,
+    motivo:datos.motivo,estado:'Pendiente'
+  }})
+  .then(function(){
+    return apiPost('enviarCorreoSolicitud',{data:datos}).catch(function(){});
+  })
+  .then(function(){
+    notificarWA(datos);
+    document.getElementById('sol-form').style.display='none';
+    document.getElementById('sol-exito').style.display='';
+  })
+  .catch(function(){
+    alert('Ocurrió un error. Por favor intenta de nuevo.');
+    btn.disabled=false;
+    document.getElementById('sol-btn-txt').textContent='Enviar solicitud';
+    document.getElementById('sol-spin').style.display='none';
+  });
+}
+
+function notificarWA(datos) {
+  var tel = (contactoAdmin.telefono||'').replace(/\D/g,'');
+  if (!tel) return;
+  if (tel.length===10) tel='52'+tel;
+  var msg = '🔔 *Nueva solicitud de cita*\n\n'
+    +'👤 *Paciente:* '+datos.nombre+'\n'
+    +'📱 *Teléfono:* '+datos.telefono+'\n'
+    +(datos.correo?'📧 *Correo:* '+datos.correo+'\n':'')
+    +'📅 *Fecha:* '+formatFecha(datos.fecha)+'\n'
+    +'🕐 *Horario:* '+datos.hora_inicio+(datos.hora_fin?' – '+datos.hora_fin:'')+'\n'
+    +(datos.servicio?'🏷️ *Servicio:* '+datos.servicio+'\n':'')
+    +(datos.motivo?'📝 *Motivo:* '+datos.motivo+'\n':'')
+    +'\n_Registrada como Pendiente en la agenda._';
+  window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+function apiPost(action, payload) {
+  return fetch(PROXY,{
+    method:'POST',redirect:'follow',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify(Object.assign({action:action},payload))
+  }).then(function(r){return r.text();})
+    .then(function(t){var j=JSON.parse(t);if(!j.ok)throw new Error(j.error||'Error');return j;});
+}
+
+function fmtDate(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function pad(n){return String(n).padStart(2,'0');}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function formatFecha(ds){
+  if(!ds)return '—';
+  var p=ds.split('-'),d=new Date(ds+'T12:00:00');
+  return DIAS[d.getDay()]+' '+parseInt(p[2])+' de '+MESES[parseInt(p[1])-1];
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){cerrarOverlay(null);}
+});
+
+loadSlots();
+</script>
+</body>
+</html>

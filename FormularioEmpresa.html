@@ -272,7 +272,8 @@
     window.BE_TIPO        = p.get('tipo')  || 'EMP';
   })();
 
-  var PROXY = 'TU_URL_WEBAPP_AQUI'; // ← reemplaza con tu URL desplegada
+  var PROXY    = 'https://script.google.com/macros/s/AKfycbw33rJe4JWLUnSHYuRuf4x_FW90YKMA-i2PEHXCoJwqYmUcih90NVV9JpUe_i0jrQli/exec';
+  var WA_ADMIN = '524425839311'; // número admin con código país // ← reemplaza con tu URL desplegada
   var srvActivo = '';
 
   function selServ(el, srv, key) {
@@ -322,8 +323,8 @@
     };
 
     fetch(PROXY, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+      method:'POST', redirect:'follow',
+      headers:{'Content-Type':'text/plain'},
       body: JSON.stringify({ action:'procesarCotizacionEmpresa', data:data })
     })
     .then(function(r){ return r.json(); })
@@ -343,7 +344,6 @@
     .finally(function(){ setBtn(false); });
   });
 
-  var WA_ADMIN = '524425839311';
   function notificarWA(data, id) {
     var msg = '🔔 *Nueva COTIZACIÓN — EMPRESA*\n\n'
       + '🪪 *ID:* '             + (id || '—')               + '\n'

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cotización Escuela — Bienestar Emocional</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rosa:#FF85C0;--amber:#FFB347;--lila:#A67FFF;--lila-deep:#6B48CC;
+    --bg:#FFFBF5;--card:#fff;--text:#1E1608;--muted:#8A7350;--border:#F0E2C8;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-x:hidden}
+  body::before{content:'';position:fixed;top:-140px;right:-140px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(255,179,71,.14) 0%,transparent 70%);pointer-events:none}
+  body::after{content:'';position:fixed;bottom:-120px;left:-120px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(255,133,192,.1) 0%,transparent 70%);pointer-events:none}
+
+  .card{width:100%;max-width:560px;background:var(--card);border-radius:28px;box-shadow:0 2px 8px rgba(255,179,71,.08),0 18px 60px rgba(255,179,71,.14);overflow:hidden;animation:up .5s cubic-bezier(.22,.68,0,1.15) both}
+  @keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Header cálido */
+  .hdr{background:linear-gradient(145deg,#FFB347 0%,#FF85C0 55%,#A67FFF 100%);padding:36px 36px 48px;position:relative}
+  .hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:32px;background:var(--card);border-radius:28px 28px 0 0}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.22);color:#fff;padding:5px 13px;border-radius:50px;font-size:.76rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:14px}
+  .hdr h1{font-family:'Cormorant Garamond',serif;color:#fff;font-size:1.9rem;font-weight:700;line-height:1.2}
+  .hdr p{color:rgba(255,255,255,.82);font-size:.88rem;margin-top:7px;font-weight:300}
+
+  .body{padding:8px 36px 42px}
+
+  /* Col D: Nivel_Educativo — chips */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .chip{padding:7px 15px;border-radius:50px;border:1.5px solid var(--border);font-size:.8rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;background:#fff}
+  .chip:hover{border-color:var(--amber);color:#A06000}
+  .chip.sel{background:linear-gradient(135deg,#FFB347,#FF85C0);color:#fff;border-color:transparent;box-shadow:0 2px 10px rgba(255,179,71,.28)}
+
+  /* Servicios */
+  .srv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+  .srv{border:1.5px solid var(--border);border-radius:14px;padding:13px 14px;cursor:pointer;transition:all .22s;background:#fff;display:flex;align-items:center;gap:11px}
+  .srv:hover{border-color:var(--amber);background:#FFFBF0}
+  .srv.sel{border-color:var(--amber);background:linear-gradient(135deg,#FFFBF0,#FFF0FA);box-shadow:0 2px 14px rgba(255,179,71,.2)}
+  .srv .ico{font-size:1.35rem}
+  .srv .lbl{font-size:.82rem;font-weight:600;color:var(--text)}
+
+  .cond{display:none;animation:fadeIn .3s ease}
+  .cond.on{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  .sec{font-family:'Cormorant Garamond',serif;font-size:1.08rem;font-weight:600;color:var(--lila-deep);margin-bottom:15px;padding-bottom:8px;border-bottom:1px dashed var(--border)}
+  .grp{margin-bottom:15px}
+  label{display:block;font-size:.75rem;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+  label em{color:var(--rosa);font-style:normal}
+  input,select,textarea{width:100%;padding:12px 15px;border:1.5px solid var(--border);border-radius:12px;font-family:'Jost',sans-serif;font-size:.93rem;color:var(--text);background:#fff;outline:none;transition:border .2s,box-shadow .2s;appearance:none}
+  input::placeholder,textarea::placeholder{color:#D4C4A0}
+  input:focus,select:focus,textarea:focus{border-color:var(--amber);box-shadow:0 0 0 4px rgba(255,179,71,.1)}
+  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23FFB347' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;cursor:pointer}
+  textarea{resize:vertical;min-height:78px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+  .sep{border:none;border-top:1px dashed var(--border);margin:20px 0}
+
+  .btn{width:100%;margin-top:10px;padding:15px;background:linear-gradient(135deg,#FFB347,#FF85C0,#A67FFF);color:#fff;border:none;border-radius:50px;font-family:'Jost',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.04em;cursor:pointer;transition:opacity .2s,transform .18s;box-shadow:0 6px 22px rgba(255,179,71,.3)}
+  .btn:hover:not(:disabled){opacity:.92;transform:translateY(-2px)}
+  .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+  .fb{display:none;margin-top:16px;padding:14px 18px;border-radius:13px;font-size:.88rem;text-align:center;line-height:1.6}
+  .fb.ok{background:#EDFAF4;color:#1B6B42;border:1px solid #9FDFBE}
+  .fb.err{background:#FFF0F5;color:#B5294A;border:1px solid #F7AABF}
+  .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:7px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media(max-width:480px){.hdr{padding:26px 20px 40px}.body{padding:6px 20px 32px}.two,.srv-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="hdr">
+    <div class="badge">🏫 Escuelas</div>
+    <h1>Solicita tu Cotización</h1>
+    <p>Programas de salud mental y bienestar para tu institución educativa</p>
+  </div>
+  <div class="body">
+    <form id="form" novalidate>
+
+      <!-- ── Col D: Nivel_Educativo ── -->
+      <p class="sec">Nivel educativo</p>
+      <input type="hidden" id="Nivel_Educativo" value="">
+      <div class="chips">
+        <span class="chip" onclick="selNivel(this,'Preescolar')">🌱 Preescolar</span>
+        <span class="chip" onclick="selNivel(this,'Primaria')">📚 Primaria</span>
+        <span class="chip" onclick="selNivel(this,'Secundaria')">🎒 Secundaria</span>
+        <span class="chip" onclick="selNivel(this,'Preparatoria')">🎓 Preparatoria</span>
+        <span class="chip" onclick="selNivel(this,'Universidad')">🏛️ Universidad</span>
+      </div>
+
+      <hr class="sep">
+
+      <!-- ── Col I: Servicio ── -->
+      <p class="sec">¿Qué servicio necesitas?</p>
+      <input type="hidden" id="Servicio" value="">
+      <div class="srv-grid">
+        <div class="srv" onclick="selServ(this,'Acompañamiento psicológico','acomp')">
+          <span class="ico">💬</span><span class="lbl">Acompañamiento psicológico</span>
+        </div>
+        <div class="srv" onclick="selServ(this,'Talleres y capacitaciones','taller')">
+          <span class="ico">🧠</span><span class="lbl">Talleres y capacitaciones</span>
+        </div>
+        <div class="srv" onclick="selServ(this,'Pláticas y conferencias','platica')">
+          <span class="ico">🎤</span><span class="lbl">Pláticas y conferencias</span>
+        </div>
+        <div class="srv" onclick="selServ(this,'Evaluaciones','eval')">
+          <span class="ico">📋</span><span class="lbl">Evaluaciones</span>
+        </div>
+      </div>
+
+      <!-- ── Acompañamiento → Col J K L M ── -->
+      <div class="cond" id="c-acomp" style="margin-top:14px">
+        <div class="two">
+          <!-- Col J: Poblacion -->
+          <div class="grp">
+            <label>Población atendida</label>
+            <select id="Poblacion">
+              <option value="">Elige…</option>
+              <option>Alumnos</option><option>Docentes</option><option>Mixta</option>
+            </select>
+          </div>
+          <!-- Col K: Num_Alumnos -->
+          <div class="grp">
+            <label>Nº de alumnos aprox.</label>
+            <input type="number" id="Num_Alumnos" min="1" placeholder="Ej. 200">
+          </div>
+        </div>
+        <!-- Col L: Motivo_Principal -->
+        <div class="grp">
+          <label>Motivo principal</label>
+          <input type="text" id="Motivo_Principal" placeholder="Ej. Ansiedad académica, bullying…">
+        </div>
+        <!-- Col M: Modalidad_Acomp -->
+        <div class="grp">
+          <label>Modalidad preferida</label>
+          <select id="Modalidad_Acomp">
+            <option value="">Selecciona…</option>
+            <option>Presencial</option><option>En línea</option><option>Híbrida</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ── Taller → Col N O ── -->
+      <div class="cond" id="c-taller" style="margin-top:14px">
+        <!-- Col N: Temas_Taller -->
+        <div class="grp">
+          <label>Temas de interés para el taller</label>
+          <input type="text" id="Temas_Taller" placeholder="Ej. Inteligencia emocional, habilidades sociales…">
+        </div>
+        <!-- Col O: Dirigida_A -->
+        <div class="grp">
+          <label>Dirigido a</label>
+          <select id="Dirigida_A">
+            <option value="">Selecciona…</option>
+            <option>Alumnos</option><option>Docentes</option>
+            <option>Padres de familia</option><option>Todo el personal</option>
+          </select>
+        </div>
+        <!-- Col U: Num_Participantes -->
+        <div class="grp">
+          <label>Nº de participantes</label>
+          <input type="number" id="Num_Participantes_T" min="1" placeholder="Ej. 40">
+        </div>
+      </div>
+
+      <!-- ── Plática/Conferencia → Col P Q ── -->
+      <div class="cond" id="c-platica" style="margin-top:14px">
+        <!-- Col P: Tema_Platica -->
+        <div class="grp">
+          <label>Tema de la plática</label>
+          <input type="text" id="Tema_Platica" placeholder="Ej. Salud mental en adolescentes…">
+        </div>
+        <!-- Col Q: Tema_Conferencia -->
+        <div class="grp">
+          <label>Tema de la conferencia</label>
+          <input type="text" id="Tema_Conferencia" placeholder="Ej. Bienestar educativo…">
+        </div>
+        <!-- Col U: Num_Participantes -->
+        <div class="grp">
+          <label>Nº de participantes</label>
+          <input type="number" id="Num_Participantes_P" min="1" placeholder="Ej. 100">
+        </div>
+      </div>
+
+      <!-- ── Evaluación → Col R S T ── -->
+      <div class="cond" id="c-eval" style="margin-top:14px">
+        <div class="two">
+          <!-- Col R: Tipo_Evaluacion -->
+          <div class="grp">
+            <label>Tipo de evaluación</label>
+            <input type="text" id="Tipo_Evaluacion" placeholder="Ej. Detección de acoso">
+          </div>
+          <!-- Col T: Num_Alumnos_Eval -->
+          <div class="grp">
+            <label>Nº alumnos a evaluar</label>
+            <input type="number" id="Num_Alumnos_Eval" min="1" placeholder="Ej. 50">
+          </div>
+        </div>
+        <!-- Col S: Motivo_Evaluacion -->
+        <div class="grp">
+          <label>Motivo de la evaluación</label>
+          <input type="text" id="Motivo_Evaluacion" placeholder="Ej. Diagnóstico de necesidades…">
+        </div>
+      </div>
+
+      <hr class="sep">
+      <p class="sec">Datos de la institución</p>
+
+      <!-- Col C: Nombre_Escuela -->
+      <div class="grp">
+        <label>Nombre de la escuela <em>*</em></label>
+        <input type="text" id="Nombre_Escuela" placeholder="Instituto / Colegio / Escuela…" required>
+      </div>
+
+      <hr class="sep">
+      <p class="sec">Datos de contacto</p>
+
+      <div class="two">
+        <!-- Col E: Nombre_Contacto -->
+        <div class="grp">
+          <label>Nombre del contacto <em>*</em></label>
+          <input type="text" id="Nombre_Contacto" placeholder="Tu nombre" required>
+        </div>
+        <!-- Col F: Cargo -->
+        <div class="grp">
+          <label>Cargo</label>
+          <input type="text" id="Cargo" placeholder="Ej. Director, Orientador…">
+        </div>
+      </div>
+      <div class="two">
+        <!-- Col G: Telefono -->
+        <div class="grp">
+          <label>Teléfono <em>*</em></label>
+          <input type="tel" id="Telefono" placeholder="10 dígitos" required>
+        </div>
+        <!-- Col H: Correo -->
+        <div class="grp">
+          <label>Correo</label>
+          <input type="email" id="Correo" placeholder="contacto@escuela.edu.mx">
+        </div>
+      </div>
+
+      <!-- Col V: Modalidad_General -->
+      <div class="grp">
+        <label>Modalidad general preferida</label>
+        <select id="Modalidad_General">
+          <option value="">Selecciona…</option>
+          <option>Presencial</option><option>En línea</option><option>Híbrida</option>
+        </select>
+      </div>
+      <!-- Col W: Comentarios -->
+      <div class="grp">
+        <label>Comentarios adicionales</label>
+        <textarea id="Comentarios" placeholder="Contexto, dudas o detalles que quieras compartir…"></textarea>
+      </div>
+
+      <!-- A=Timestamp · B=ID_Escuela · X=Estado  → generados en servidor -->
+
+      <button type="submit" class="btn" id="btn">Solicitar cotización →</button>
+      <div class="fb" id="fb"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+  var PROXY = 'https://proyectosolaronline-ops.github.io/bienestar-emocional-online/index.html'; // ← reemplaza con tu URL desplegada
+  var srvActivo = '';
+
+  function selNivel(el, v) {
+    document.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('sel'); });
+    el.classList.add('sel');
+    document.getElementById('Nivel_Educativo').value = v;
+  }
+
+  function selServ(el, srv, key) {
+    document.querySelectorAll('.srv').forEach(function(s){ s.classList.remove('sel'); });
+    el.classList.add('sel');
+    srvActivo = srv;
+    document.getElementById('Servicio').value = srv;
+    ['acomp','taller','platica','eval'].forEach(function(k){
+      document.getElementById('c-'+k).classList.toggle('on', k === key);
+    });
+  }
+
+  document.getElementById('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!srvActivo)                                              return fb('err','⚠️ Selecciona un servicio.');
+    if (!g('Nombre_Escuela') || !g('Nombre_Contacto') || !g('Telefono')) return fb('err','⚠️ Completa los campos obligatorios.');
+    setBtn(true);
+
+    // Mapeado exacto columnas Sheet Cotizaciones_Escuelas:
+    // A=Timestamp(svr) | B=ID_Escuela(svr) | C=Nombre_Escuela | D=Nivel_Educativo
+    // E=Nombre_Contacto | F=Cargo | G=Telefono | H=Correo | I=Servicio
+    // J=Poblacion | K=Num_Alumnos | L=Motivo_Principal | M=Modalidad_Acomp
+    // N=Temas_Taller | O=Dirigida_A | P=Tema_Platica | Q=Tema_Conferencia
+    // R=Tipo_Evaluacion | S=Motivo_Evaluacion | T=Num_Alumnos_Eval
+    // U=Num_Participantes | V=Modalidad_General | W=Comentarios | X=Estado(svr)
+    var data = {
+      nombreEscuela:    g('Nombre_Escuela'),
+      nivelEducativo:   g('Nivel_Educativo'),
+      nombreContacto:   g('Nombre_Contacto'),
+      cargo:            g('Cargo'),
+      telefono:         g('Telefono'),
+      correo:           g('Correo'),
+      servicio:         srvActivo,
+      poblacion:        g('Poblacion'),
+      numAlumnos:       g('Num_Alumnos'),
+      motivoPrincipal:  g('Motivo_Principal'),
+      modalidadAcomp:   g('Modalidad_Acomp'),
+      temasTaller:      g('Temas_Taller'),
+      dirigidaA:        g('Dirigida_A'),
+      temaPlatica:      g('Tema_Platica'),
+      temaConferencia:  g('Tema_Conferencia'),
+      tipoEvaluacion:   g('Tipo_Evaluacion'),
+      motivoEvaluacion: g('Motivo_Evaluacion'),
+      numAlumnosEval:   g('Num_Alumnos_Eval'),
+      numParticipantes: g('Num_Participantes_T') || g('Num_Participantes_P'),
+      modalidadGeneral: g('Modalidad_General'),
+      comentarios:      g('Comentarios')
+    };
+
+    fetch(PROXY, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'procesarCotizacionEscuela', data:data })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      if (res.ok) {
+        fb('ok','✅ ¡Cotización enviada! Pronto te contactaremos.<br><small>ID: '+res.id+'</small>');
+        document.getElementById('form').reset();
+        document.querySelectorAll('.chip,.srv').forEach(function(x){ x.classList.remove('sel'); });
+        document.querySelectorAll('.cond').forEach(function(c){ c.classList.remove('on'); });
+        srvActivo=''; document.getElementById('Servicio').value=''; document.getElementById('Nivel_Educativo').value='';
+      } else {
+        fb('err','❌ '+(res.error||'Error al enviar. Intenta de nuevo.'));
+      }
+    })
+    .catch(function(){ fb('err','❌ Error de conexión.'); })
+    .finally(function(){ setBtn(false); });
+  });
+
+  function g(id){ var el=document.getElementById(id); return el ? el.value.trim() : ''; }
+  function fb(tipo,msg){ var el=document.getElementById('fb'); el.className='fb '+tipo; el.innerHTML=msg; el.style.display='block'; el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  function setBtn(l){ var b=document.getElementById('btn'); b.disabled=l; b.innerHTML=l?'<span class="spin"></span>Enviando…':'Solicitar cotización →'; }
+</script>
+</body>
+</html>

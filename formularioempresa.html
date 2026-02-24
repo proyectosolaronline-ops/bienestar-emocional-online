@@ -330,6 +330,7 @@
     .then(function(res){
       if (res.ok) {
         fb('ok','✅ ¡Cotización enviada! Pronto te contactaremos.<br><small>ID: '+res.id+'</small>');
+        notificarWA(data, res.id || '');
         document.getElementById('form').reset();
         document.querySelectorAll('.srv').forEach(function(s){ s.classList.remove('sel'); });
         document.querySelectorAll('.cond').forEach(function(c){ c.classList.remove('on'); });
@@ -341,6 +342,22 @@
     .catch(function(){ fb('err','❌ Error de conexión.'); })
     .finally(function(){ setBtn(false); });
   });
+
+  var WA_ADMIN = '524425839311';
+  function notificarWA(data, id) {
+    var msg = '🔔 *Nueva COTIZACIÓN — EMPRESA*\n\n'
+      + '🪪 *ID:* '             + (id || '—')               + '\n'
+      + '🏢 *Empresa:* '        + data.nombreEmpresa         + '\n'
+      + '👤 *Contacto:* '       + data.nombreContacto        + '\n'
+      + (data.cargo            ? '💼 *Cargo:* '         + data.cargo            + '\n' : '')
+      + '📱 *Teléfono:* '       + data.telefono              + '\n'
+      + (data.correo           ? '📧 *Correo:* '        + data.correo           + '\n' : '')
+      + '🏷️ *Servicio:* '       + data.servicio              + '\n'
+      + (data.numColaboradores ? '👥 *Colaboradores:* ' + data.numColaboradores + '\n' : '')
+      + (data.comentarios      ? '📝 *Comentarios:* '   + data.comentarios      + '\n' : '')
+      + '\n_Registrada automáticamente en el Sheet._';
+    window.open('https://wa.me/' + WA_ADMIN + '?text=' + encodeURIComponent(msg), '_blank');
+  }
 
   function g(id){ var el=document.getElementById(id); return el ? el.value.trim() : ''; }
   function fb(tipo,msg){ var el=document.getElementById('fb'); el.className='fb '+tipo; el.innerHTML=msg; el.style.display='block'; el.scrollIntoView({behavior:'smooth',block:'nearest'}); }

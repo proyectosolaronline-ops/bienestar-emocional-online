@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bienestar Emocional — Paso inicial</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   be-welcome.html
+   Componente universal — se integra en los 3 modales.
+
+   USO EN CADA MODAL:
+   1. Pega el bloque <div id="be-welcome"> antes del <form>
+   2. Cambia los data-* según el modal:
+      · Cita Personal : data-modal="Cita Personal"  data-emoji="💜"  data-tipo="PAC"
+      · Empresa        : data-modal="Empresa"         data-emoji="🏢"  data-tipo="EMP"
+      · Escuela        : data-modal="Escuela"          data-emoji="🏫"  data-tipo="ESC"
+   3. Cambia data-proxy con la URL del Proxy v5
+   4. Escucha el evento 'be:listo' para recibir los datos:
+      document.addEventListener('be:listo', function(e) {
+        // e.detail = { nombre, telefono, correo, pacienteId, modal, sesion }
+        // Prellena tu formulario con estos datos
+      });
+   ═══════════════════════════════════════════════════════════ */
+
+  :root {
+    --rosa:       #FF85C0;
+    --lila:       #A67FFF;
+    --lila-deep:  #6B48CC;
+    --bg:         #FDF8FF;
+    --card:       #FFFFFF;
+    --text:       #1E1530;
+    --muted:      #857A9E;
+    --border:     #EAE0FF;
+    --green:      #25D366;
+    --green-dark: #128C48;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 28px 16px;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; top: -160px; right: -160px;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,133,192,.13) 0%, transparent 68%);
+    pointer-events: none;
+  }
+  body::after {
+    content: ''; position: fixed; bottom: -130px; left: -130px;
+    width: 440px; height: 440px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(166,127,255,.11) 0%, transparent 68%);
+    pointer-events: none;
+  }
+
+  /* Demo wrapper */
+  .demo-wrap {
+    width: 100%; max-width: 460px;
+    background: var(--card); border-radius: 28px;
+    box-shadow: 0 2px 8px rgba(107,72,204,.07), 0 20px 60px rgba(107,72,204,.13);
+    overflow: hidden;
+  }
+
+  /* ══════════════════════════════════════════
+     COMPONENTE be-welcome — estilos
+     ══════════════════════════════════════════ */
+  #be-welcome { position: relative; overflow: hidden; }
+
+  /* Pantallas */
+  .be-screen { display: none; }
+  .be-screen.be-active {
+    display: block;
+    animation: beUp .38s cubic-bezier(.22,.68,0,1.15) both;
+  }
+  @keyframes beUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Header */
+  .be-hdr {
+    background: linear-gradient(145deg, #FF85C0 0%, #C480FF 52%, #A67FFF 100%);
+    padding: 30px 32px 48px; position: relative; text-align: center;
+  }
+  .be-hdr::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 28px; background: var(--card); border-radius: 28px 28px 0 0;
+  }
+  .be-hdr-ico {
+    width: 54px; height: 54px;
+    background: rgba(255,255,255,.24); backdrop-filter: blur(8px);
+    border-radius: 18px; font-size: 1.6rem;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 13px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.07);
+  }
+  .be-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,.22); color: #fff;
+    padding: 4px 13px; border-radius: 50px;
+    font-size: .72rem; font-weight: 600;
+    letter-spacing: .06em; text-transform: uppercase;
+    margin-bottom: 11px;
+  }
+  .be-hdr h2 {
+    font-family: 'Cormorant Garamond', serif;
+    color: #fff; font-size: 1.75rem; font-weight: 700; line-height: 1.2;
+  }
+  .be-hdr p {
+    color: rgba(255,255,255,.82); font-size: .86rem;
+    margin-top: 6px; font-weight: 300; letter-spacing: .02em;
+  }
+
+  /* Body */
+  .be-body { padding: 6px 30px 34px; }
+
+  /* Saludo dinámico */
+  .be-greeting {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 1rem;
+    color: var(--lila-deep); text-align: center;
+    min-height: 24px; margin-bottom: 4px;
+    transition: opacity .3s;
+  }
+
+  /* Campos */
+  .be-grp { margin-bottom: 15px; }
+  .be-label {
+    display: block; font-size: .73rem; font-weight: 600;
+    color: var(--muted); letter-spacing: .07em;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .be-label em { color: var(--rosa); font-style: normal; }
+  .be-input {
+    width: 100%; padding: 12px 15px;
+    border: 1.5px solid var(--border); border-radius: 12px;
+    font-family: 'Jost', sans-serif; font-size: .94rem;
+    color: var(--text); background: #fff; outline: none;
+    transition: border .2s, box-shadow .2s; appearance: none;
+  }
+  .be-input::placeholder { color: #CFC7E8; }
+  .be-input:focus {
+    border-color: var(--lila);
+    box-shadow: 0 0 0 4px rgba(166,127,255,.1);
+  }
+  .be-input.be-confirmed {
+    border-color: #25D366; background: #F0FFF6;
+    color: #1A7A42; font-weight: 500;
+  }
+
+  /* Bloque confirmación correo */
+  .be-correo-confirm {
+    display: none;
+    background: #F0FFF6; border: 1.5px solid #9FDFBE;
+    border-radius: 12px; padding: 14px 16px;
+    margin-top: -6px; margin-bottom: 14px;
+    animation: beUp .3s ease both;
+  }
+  .be-correo-confirm.visible { display: flex; align-items: center; gap: 12px; }
+  .be-correo-confirm .ico { font-size: 1.4rem; flex-shrink: 0; }
+  .be-correo-confirm .txt { flex: 1; }
+  .be-correo-confirm .txt p {
+    font-size: .82rem; color: #1A7A42; font-weight: 500; margin-bottom: 3px;
+  }
+  .be-correo-confirm .txt small {
+    font-size: .75rem; color: #4A9A6A; word-break: break-all;
+  }
+  /* Checkbox estilizado */
+  .be-check-wrap {
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; margin-top: 2px;
+  }
+  .be-check-wrap input[type=checkbox] { display: none; }
+  .be-check-box {
+    width: 20px; height: 20px; border-radius: 6px;
+    border: 2px solid #9FDFBE; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all .2s;
+    font-size: .8rem;
+  }
+  .be-check-wrap.checked .be-check-box {
+    background: #25D366; border-color: #25D366; color: #fff;
+  }
+  .be-check-wrap span { font-size: .8rem; color: #1A7A42; font-weight: 500; }
+
+  /* Botón principal */
+  .be-btn {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--rosa), var(--lila));
+    color: #fff; border: none; border-radius: 50px;
+    font-family: 'Jost', sans-serif; font-size: .97rem;
+    font-weight: 600; letter-spacing: .04em; cursor: pointer;
+    transition: opacity .2s, transform .18s, box-shadow .2s;
+    box-shadow: 0 6px 22px rgba(166,127,255,.3); margin-top: 8px;
+  }
+  .be-btn:hover:not(:disabled) {
+    opacity: .92; transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(166,127,255,.36);
+  }
+  .be-btn:disabled { opacity: .48; cursor: not-allowed; transform: none; box-shadow: none; }
+  .be-btn.green {
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    box-shadow: 0 6px 22px rgba(37,211,102,.28);
+  }
+
+  /* Error */
+  .be-err {
+    display: none; background: #FFF0F5; color: #B5294A;
+    border: 1px solid #F7AABF; border-radius: 10px;
+    padding: 9px 13px; font-size: .8rem;
+    margin-top: 8px; text-align: center;
+  }
+
+  /* ── STEP 2: opciones ── */
+  .be-name-hi {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.12rem; font-style: italic;
+    color: var(--lila-deep); text-align: center;
+    margin-bottom: 18px; line-height: 1.5;
+  }
+  .be-opciones { display: flex; flex-direction: column; gap: 12px; }
+  .be-opcion {
+    border: 1.5px solid var(--border); border-radius: 18px;
+    padding: 18px 18px 16px; cursor: pointer;
+    transition: all .22s; background: #fff;
+    display: flex; align-items: flex-start; gap: 13px;
+    position: relative; overflow: hidden;
+  }
+  .be-opcion:hover { transform: translateY(-2px); }
+  .be-opcion.wa:hover  { border-color: var(--green);  box-shadow: 0 6px 22px rgba(37,211,102,.13); }
+  .be-opcion.form:hover { border-color: var(--lila); box-shadow: 0 6px 22px rgba(166,127,255,.13); }
+  .be-opcion-ico {
+    width: 44px; height: 44px; border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; flex-shrink: 0;
+  }
+  .be-opcion.wa   .be-opcion-ico { background: #E8FFF1; }
+  .be-opcion.form .be-opcion-ico { background: #F3ECFF; }
+  .be-opcion-txt h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.08rem; font-weight: 700; margin-bottom: 3px;
+  }
+  .be-opcion.wa   .be-opcion-txt h3 { color: #1A7A42; }
+  .be-opcion.form .be-opcion-txt h3 { color: var(--lila-deep); }
+  .be-opcion-txt p { font-size: .78rem; color: var(--muted); line-height: 1.5; }
+  .be-arrow {
+    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    color: var(--border); font-size: 1.1rem; transition: all .2s;
+  }
+  .be-opcion:hover .be-arrow { color: var(--muted); transform: translateY(-50%) translateX(3px); }
+
+  /* ── Loader ── */
+  .be-loader {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 44px 0; gap: 14px;
+  }
+  .be-spinner {
+    width: 38px; height: 38px;
+    border: 3px solid var(--border); border-top-color: var(--lila);
+    border-radius: 50%; animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .be-loader p { font-size: .85rem; color: var(--muted); }
+
+  /* ── Confirmación final ── */
+  .be-final {
+    text-align: center; padding: 16px 0 8px;
+  }
+  .be-final-ico {
+    width: 68px; height: 68px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.9rem; margin: 0 auto 14px;
+    animation: pop .5s cubic-bezier(.22,.68,0,1.4) both;
+  }
+  @keyframes pop {
+    from { transform: scale(.3); opacity: 0; }
+    to   { transform: scale(1);  opacity: 1; }
+  }
+  .be-final.wa  .be-final-ico { background: #E8FFF1; }
+  .be-final.ok  .be-final-ico { background: #F3ECFF; }
+  .be-final h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 700; color: var(--text); margin-bottom: 8px;
+  }
+  .be-final p { font-size: .85rem; color: var(--muted); line-height: 1.65; }
+  .be-id-chip {
+    display: inline-block; background: #F3ECFF; color: var(--lila-deep);
+    border-radius: 50px; padding: 5px 16px;
+    font-size: .78rem; font-weight: 700; letter-spacing: .04em;
+    margin: 10px 0 16px;
+  }
+
+  /* ═══ FIN ESTILOS be-welcome ═══ */
+
+  @media (max-width: 440px) {
+    .be-hdr { padding: 24px 20px 42px; }
+    .be-body { padding: 4px 18px 28px; }
+  }
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+<!-- ══════════════════════════════════════════════════════════════
+     COMPONENTE be-welcome
+     Copiar desde aquí hasta el comentario "FIN be-welcome"
+     Cambiar data-* según el modal donde se inserte
+     ══════════════════════════════════════════════════════════════ -->
+<div id="be-welcome"
+     data-modal="Cita Personal"
+     data-emoji="💜"
+     data-tipo="PAC"
+     data-proxy="TU_URL_WEBAPP_AQUI">
+
+  <!-- ── STEP 1: Datos personales + confirmación correo ── -->
+  <div class="be-screen be-active" id="be-s1">
+    <div class="be-hdr">
+      <div class="be-badge" id="be-badge1">💜 Cita Personal</div>
+      <div class="be-hdr-ico" id="be-ico1">💜</div>
+      <h2>Hola, estamos aquí</h2>
+      <p>Solo necesitamos un momento de tu tiempo</p>
+    </div>
+    <div class="be-body">
+
+      <div class="be-greeting" id="be-greeting">&nbsp;</div>
+
+      <!-- Nombre -->
+      <div class="be-grp">
+        <label class="be-label">Tu nombre completo <em>*</em></label>
+        <input class="be-input" type="text" id="be-nombre"
+               placeholder="¿Cómo te llamas?"
+               autocomplete="off" oninput="BE.onNombre(this.value)">
+      </div>
+
+      <!-- Teléfono -->
+      <div class="be-grp">
+        <label class="be-label">Tu teléfono <em>*</em></label>
+        <input class="be-input" type="tel" id="be-tel"
+               placeholder="10 dígitos" maxlength="10">
+      </div>
+
+      <!-- Correo -->
+      <div class="be-grp">
+        <label class="be-label">Tu correo electrónico <em>*</em></label>
+        <input class="be-input" type="email" id="be-correo"
+               placeholder="tu@correo.com"
+               oninput="BE.onCorreo(this.value)">
+      </div>
+
+      <!-- Bloque confirmación correo — aparece al escribir correo válido -->
+      <div class="be-correo-confirm" id="be-correo-block">
+        <span class="ico">✉️</span>
+        <div class="txt">
+          <p>¿Es este tu correo?</p>
+          <small id="be-correo-display"></small>
+          <label class="be-check-wrap" id="be-check-wrap" onclick="BE.toggleCheck()">
+            <input type="checkbox" id="be-check">
+            <span class="be-check-box" id="be-check-box">✓</span>
+            <span>Sí, confirmo este correo</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="be-err" id="be-err1"></div>
+
+      <button class="be-btn" id="be-btn1" onclick="BE.step1()">
+        Continuar →
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ── STEP 2: Elegir opción ── -->
+  <div class="be-screen" id="be-s2">
+    <div class="be-hdr">
+      <div class="be-badge" id="be-badge2">💜 Cita Personal</div>
+      <div class="be-hdr-ico">🤝</div>
+      <h2>¿Cómo prefieres continuar?</h2>
+      <p>Elige la opción que más te acomode</p>
+    </div>
+    <div class="be-body">
+      <p class="be-name-hi">
+        Hola <strong id="be-nombre-s2"></strong>,
+        ya registramos tu información 💜<br>
+        <span style="font-size:.82rem;color:var(--muted);font-style:normal" id="be-id-s2"></span>
+      </p>
+      <div class="be-opciones">
+        <div class="be-opcion wa" onclick="BE.elegirWA()">
+          <div class="be-opcion-ico">💬</div>
+          <div class="be-opcion-txt">
+            <h3>Hablar con nosotros</h3>
+            <p>Te contactamos por WhatsApp para orientarte personalmente</p>
+          </div>
+          <span class="be-arrow">›</span>
+        </div>
+        <div class="be-opcion form" onclick="BE.elegirForm()">
+          <div class="be-opcion-ico">📋</div>
+          <div class="be-opcion-txt">
+            <h3>Llenar el formulario</h3>
+            <p>Completa tu solicitud con tus datos ya guardados</p>
+          </div>
+          <span class="be-arrow">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Loader ── -->
+  <div class="be-screen" id="be-s-load">
+    <div class="be-body">
+      <div class="be-loader">
+        <div class="be-spinner"></div>
+        <p id="be-load-txt">Guardando tu información…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Confirmación: eligió WA ── -->
+  <div class="be-screen" id="be-s-wa">
+    <div class="be-body" style="padding-top:20px;padding-bottom:36px">
+      <div class="be-final wa">
+        <div class="be-final-ico">✅</div>
+        <h3>¡Listo, <span id="be-conf-nombre-wa"></span>!</h3>
+        <div class="be-id-chip" id="be-conf-id-wa"></div>
+        <p>
+          Nuestro equipo ya recibió tu información.<br>
+          En breve alguien te escribirá al <strong id="be-conf-tel-wa"></strong>.
+        </p>
+        <p style="margin-top:10px;font-size:.78rem;opacity:.7">
+          También te enviamos un correo de confirmación a<br>
+          <strong id="be-conf-correo-wa"></strong>
+        </p>
+        <a id="be-wa-link" href="#" target="_blank" rel="noopener"
+           style="text-decoration:none;display:block;margin-top:18px">
+          <button class="be-btn green" style="max-width:280px;margin:0 auto;display:block">
+            📱 Escribirnos ahora por WhatsApp
+          </button>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Confirmación: eligió formulario ── -->
+  <div class="be-screen" id="be-s-form">
+    <div class="be-body" style="padding-top:20px;padding-bottom:36px">
+      <div class="be-final ok">
+        <div class="be-final-ico">📋</div>
+        <h3>Todo listo, <span id="be-conf-nombre-form"></span></h3>
+        <div class="be-id-chip" id="be-conf-id-form"></div>
+        <p>
+          Tu nombre, teléfono y correo ya están guardados.<br>
+          Ahora completa los detalles de tu solicitud.
+        </p>
+        <button class="be-btn" onclick="BE.irFormulario()"
+                style="max-width:260px;margin:18px auto 0;display:block">
+          Ir al formulario →
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- FIN be-welcome ══════════════════════════════════════════════ -->
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     FORMULARIO REAL (oculto — se muestra al elegir opción B)
+     En tu modal real, aquí va el <form> completo de cada tipo
+     ══════════════════════════════════════════════════════════════ -->
+<div id="be-form-real" style="display:none; padding:26px 30px 36px">
+  <p style="font-family:'Cormorant Garamond',serif;font-size:1.08rem;
+            color:#6B48CC;margin-bottom:18px;padding-bottom:10px;
+            border-bottom:1px dashed #EAE0FF">
+    Completa tu solicitud
+  </p>
+  <!-- Datos prellenados (solo lectura) -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+    <div>
+      <label style="display:block;font-size:.72rem;font-weight:600;color:#857A9E;
+                    letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px">
+        Nombre
+      </label>
+      <input id="ff-nombre" class="be-input" type="text" readonly
+             style="background:#FAF6FF;border-color:#EAE0FF;color:#6B48CC;font-weight:500">
+    </div>
+    <div>
+      <label style="display:block;font-size:.72rem;font-weight:600;color:#857A9E;
+                    letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px">
+        Teléfono
+      </label>
+      <input id="ff-tel" class="be-input" type="tel" readonly
+             style="background:#FAF6FF;border-color:#EAE0FF;color:#6B48CC;font-weight:500">
+    </div>
+  </div>
+  <div style="margin-bottom:20px">
+    <label style="display:block;font-size:.72rem;font-weight:600;color:#857A9E;
+                  letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px">
+      Correo confirmado
+    </label>
+    <input id="ff-correo" class="be-input be-confirmed" type="email" readonly>
+  </div>
+  <!-- ID oculto para vincular con formulario -->
+  <input type="hidden" id="ff-paciente-id">
+  <input type="hidden" id="ff-sesion-id">
+
+  <p style="font-size:.82rem;color:#857A9E;text-align:center;font-style:italic">
+    ✨ Aquí continúa el resto del formulario específico de cada modal
+  </p>
+</div>
+
+</div><!-- fin demo-wrap -->
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     SCRIPT — Copiar junto con el componente be-welcome
+     ══════════════════════════════════════════════════════════════ -->
+<script>
+var BE = (function() {
+
+  // ── Leer config del contenedor ────────────────────────────────
+  var wrap     = document.getElementById('be-welcome');
+  var PROXY    = wrap.dataset.proxy || 'TU_URL_WEBAPP_AQUI';
+  var MODAL    = wrap.dataset.modal || 'Cita Personal';
+  var EMOJI    = wrap.dataset.emoji || '💜';
+  var TIPO     = wrap.dataset.tipo  || 'PAC';
+  var WA_ADMIN = '524425839311';
+
+  // Sincronizar badges
+  ['be-badge1','be-badge2'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = EMOJI + ' ' + MODAL;
+  });
+  var ico = document.getElementById('be-ico1');
+  if (ico) ico.textContent = EMOJI;
+
+  // Estado
+  var _nombre    = '';
+  var _tel       = '';
+  var _correo    = '';
+  var _correoOk  = false;
+  var _pacienteId = '';
+  var _sesionId  = 'SES-' + Date.now();
+
+  // ── Helpers ──────────────────────────────────────────────────
+  function goScreen(id) {
+    document.querySelectorAll('.be-screen').forEach(function(s) {
+      s.classList.remove('be-active');
+    });
+    var el = document.getElementById(id);
+    if (el) el.classList.add('be-active');
+  }
+
+  function showErr(id, msg) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = msg ? 'block' : 'none';
+  }
+
+  function isEmailValid(e) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  }
+
+  // ── Saludo dinámico ───────────────────────────────────────────
+  function onNombre(v) {
+    var g = document.getElementById('be-greeting');
+    var n = v.trim().split(' ')[0];
+    if (g) {
+      g.textContent = n.length > 1 ? '¡Hola, ' + n + '! 💜' : '\u00a0';
+    }
+  }
+
+  // ── Mostrar bloque confirmación correo ───────────────────────
+  function onCorreo(v) {
+    var block   = document.getElementById('be-correo-block');
+    var display = document.getElementById('be-correo-display');
+    var wrap2   = document.getElementById('be-check-wrap');
+
+    if (isEmailValid(v.trim())) {
+      if (display) display.textContent = v.trim();
+      if (block)   block.classList.add('visible');
+      // reset check si cambió el correo
+      _correoOk = false;
+      if (wrap2)  wrap2.classList.remove('checked');
+      var cb = document.getElementById('be-check');
+      if (cb) cb.checked = false;
+      var cbox = document.getElementById('be-check-box');
+      if (cbox) cbox.textContent = '✓';
+    } else {
+      if (block) block.classList.remove('visible');
+      _correoOk = false;
+    }
+  }
+
+  // ── Toggle checkbox confirmación ─────────────────────────────
+  function toggleCheck() {
+    _correoOk = !_correoOk;
+    var wrap2 = document.getElementById('be-check-wrap');
+    var cbox  = document.getElementById('be-check-box');
+    if (wrap2) wrap2.classList.toggle('checked', _correoOk);
+    if (cbox)  cbox.textContent = _correoOk ? '✓' : '✓';
+  }
+
+  // ── STEP 1 → registro en Directorio_Pacientes ────────────────
+  function step1() {
+    _nombre  = (document.getElementById('be-nombre').value  || '').trim();
+    _tel     = (document.getElementById('be-tel').value     || '').trim();
+    _correo  = (document.getElementById('be-correo').value  || '').trim();
+
+    if (!_nombre)               return showErr('be-err1','⚠️ Escribe tu nombre completo.');
+    if (_tel.length < 10)       return showErr('be-err1','⚠️ Escribe tu teléfono de 10 dígitos.');
+    if (!isEmailValid(_correo)) return showErr('be-err1','⚠️ Escribe un correo válido.');
+    if (!_correoOk)             return showErr('be-err1','⚠️ Confirma tu correo con el checkbox.');
+    showErr('be-err1', '');
+
+    goScreen('be-s-load');
+    setLoadTxt('Guardando tu información…');
+
+    // Registrar en Directorio_Pacientes
+    fetch(PROXY, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'registrarPacienteInicial',
+        data: {
+          nombre:   _nombre,
+          telefono: _tel,
+          correo:   _correo,
+          tipo:     TIPO,
+          modal:    MODAL,
+          sesion:   _sesionId
+        }
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      _pacienteId = res.pacienteId || ('PAC-' + Date.now());
+
+      // Mostrar nombre e ID en step 2
+      var ns2 = document.getElementById('be-nombre-s2');
+      var is2 = document.getElementById('be-id-s2');
+      if (ns2) ns2.textContent = _nombre.split(' ')[0];
+      if (is2) is2.textContent = 'ID: ' + _pacienteId;
+
+      goScreen('be-s2');
+    })
+    .catch(function() {
+      // Si falla el servidor, generar ID local y continuar igual
+      _pacienteId = TIPO + '-' + Date.now();
+      var ns2 = document.getElementById('be-nombre-s2');
+      var is2 = document.getElementById('be-id-s2');
+      if (ns2) ns2.textContent = _nombre.split(' ')[0];
+      if (is2) is2.textContent = 'ID: ' + _pacienteId;
+      goScreen('be-s2');
+    });
+  }
+
+  // ── Opción A: Contactar por WA ───────────────────────────────
+  function elegirWA() {
+    goScreen('be-s-load');
+    setLoadTxt('Notificando al equipo…');
+
+    fetch(PROXY, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'registrarInteres',
+        data: {
+          pacienteId: _pacienteId,
+          nombre:     _nombre,
+          telefono:   _tel,
+          correo:     _correo,
+          modal:      MODAL,
+          opcion:     'Contacto WhatsApp',
+          sesion:     _sesionId
+        }
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .catch(function() {})
+    .finally(function() {
+      // Rellenar pantalla confirmación WA
+      setText('be-conf-nombre-wa', _nombre.split(' ')[0]);
+      setText('be-conf-id-wa',     'ID: ' + _pacienteId);
+      setText('be-conf-tel-wa',    _tel);
+      setText('be-conf-correo-wa', _correo);
+
+      // Link WA para que el cliente escriba al admin
+      var msgCli = 'Hola, soy ' + _nombre + ' (ID: ' + _pacienteId + ').'
+        + ' Me interesa información sobre *' + MODAL + '*.'
+        + ' Mi teléfono es ' + _tel + '.';
+      var waLink = document.getElementById('be-wa-link');
+      if (waLink) waLink.href = 'https://wa.me/' + WA_ADMIN
+        + '?text=' + encodeURIComponent(msgCli);
+
+      goScreen('be-s-wa');
+    });
+  }
+
+  // ── Opción B: Llenar formulario ──────────────────────────────
+  function elegirForm() {
+    goScreen('be-s-load');
+    setLoadTxt('Preparando tu formulario…');
+
+    fetch(PROXY, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'registrarInteres',
+        data: {
+          pacienteId: _pacienteId,
+          nombre:     _nombre,
+          telefono:   _tel,
+          correo:     _correo,
+          modal:      MODAL,
+          opcion:     'Llenar Formulario',
+          sesion:     _sesionId
+        }
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .catch(function() {})
+    .finally(function() {
+      setText('be-conf-nombre-form', _nombre.split(' ')[0]);
+      setText('be-conf-id-form',     'ID: ' + _pacienteId);
+      goScreen('be-s-form');
+    });
+  }
+
+  // ── Ir al formulario completo ────────────────────────────────
+  function irFormulario() {
+    // Ocultar componente
+    wrap.style.display = 'none';
+
+    // Mostrar formulario real
+    var formReal = document.getElementById('be-form-real');
+    if (formReal) {
+      formReal.style.display = 'block';
+      // Precargar datos
+      setVal('ff-nombre',      _nombre);
+      setVal('ff-tel',         _tel);
+      setVal('ff-correo',      _correo);
+      setVal('ff-paciente-id', _pacienteId);
+      setVal('ff-sesion-id',   _sesionId);
+    }
+
+    // Disparar evento — el formulario real lo escucha para prellenar sus campos
+    // Escuchar con: document.addEventListener('be:listo', function(e) { ... })
+    document.dispatchEvent(new CustomEvent('be:listo', {
+      detail: {
+        nombre:     _nombre,
+        telefono:   _tel,
+        correo:     _correo,
+        pacienteId: _pacienteId,
+        sesion:     _sesionId,
+        modal:      MODAL,
+        tipo:       TIPO
+      }
+    }));
+  }
+
+  // ── Utils ─────────────────────────────────────────────────────
+  function setText(id, v) {
+    var el = document.getElementById(id); if (el) el.textContent = v;
+  }
+  function setVal(id, v) {
+    var el = document.getElementById(id); if (el) el.value = v;
+  }
+  function setLoadTxt(t) {
+    var el = document.getElementById('be-load-txt'); if (el) el.textContent = t;
+  }
+
+  // API pública
+  return {
+    onNombre:    onNombre,
+    onCorreo:    onCorreo,
+    toggleCheck: toggleCheck,
+    step1:       step1,
+    elegirWA:    elegirWA,
+    elegirForm:  elegirForm,
+    irFormulario:irFormulario
+  };
+
+})();
+
+// ── Escuchar evento be:listo (ejemplo de integración) ────────────────
+document.addEventListener('be:listo', function(e) {
+  console.log('✅ be:listo recibido', e.detail);
+  // Aquí puedes precargar tu formulario completo:
+  // document.getElementById('Nombre').value   = e.detail.nombre;
+  // document.getElementById('Telefono').value = e.detail.telefono;
+  // document.getElementById('Correo').value   = e.detail.correo;
+  // document.getElementById('ID_Paciente').value = e.detail.pacienteId;
+});
+</script>
+
+</body>
+</html>
